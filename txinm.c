@@ -42,7 +42,7 @@ void txim_raw_value_rollback(txim_raw_value* val) {
     val->un_commit_data = NULL;
 }
 
-txim_raw_value* txim_new__raw_value(txim_destory_data_fun destory_data, txim_copy_data_fun copy_data) {
+txim_raw_value* txim_create_raw_value(txim_destory_data_fun destory_data, txim_copy_data_fun copy_data) {
     txim_raw_value* val = malloc(sizeof(txim_raw_value));
 
     val->data = NULL;
@@ -50,11 +50,13 @@ txim_raw_value* txim_new__raw_value(txim_destory_data_fun destory_data, txim_cop
     val->destory_data = destory_data;
     val->copy_data = copy_data;
 
-
     return val;
 }
 
-void txim_raw_value_destory(txim_raw_value* val) {
+void txim_destory_raw_value(txim_raw_value* val) {
+    if (val == NULL) {
+        return;
+    }
     val->destory_data(val->data);
     val->data = NULL;
     val->destory_data(val->un_commit_data);
@@ -113,8 +115,9 @@ int tx_value_commit(txim_tx_value* tx_val, int t_id) {
     }
 
     txim_raw_value_commit(tx_val->raw_value);
-    tx_val->t_id = 0;
     pthread_mutex_unlock(&tx_val->mutex);
+    tx_val->t_id = 0;
+
     return 1;
 }
 
@@ -123,8 +126,8 @@ int tx_value_rollback(txim_tx_value* tx_val, int t_id) {
         return -1;
     }
     txim_raw_value_rollback(tx_val->raw_value);
-    tx_val->t_id = 0;
     pthread_mutex_unlock(&tx_val->mutex);
+    tx_val->t_id = 0;
     return 1;
 }
 
@@ -133,7 +136,7 @@ txim_tx_value* txim_create_tx_value(txim_raw_value *raw_value) {
     tx_val->t_id = 0;
     tx_val->raw_value = raw_value;
     pthread_mutex_init(& tx_val->mutex, NULL);
-    tx_val->raw_value = NULL;
+
     return tx_val;
 }
 
@@ -142,7 +145,7 @@ void txim_destory_tx_value(txim_tx_value *tx_val)
     pthread_mutex_destroy(&tx_val->mutex);
     tx_val->t_id = 0;
     if (tx_val->raw_value) {
-        txim_raw_value_destory(tx_val->raw_value);
+        txim_destory_raw_value(tx_val->raw_value);
         tx_val->raw_value = NULL;
     }
     free(tx_val);

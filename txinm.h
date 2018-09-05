@@ -27,8 +27,8 @@ void* txim_raw_value_get_data(txim_raw_value* val);
 void* txim_raw_value_get_un_commit_data(txim_raw_value* val);
 void txim_raw_value_commit(txim_raw_value* val);
 void txim_raw_value_rollback(txim_raw_value* val);
-txim_raw_value* txim_new__raw_value(txim_destory_data_fun destory_data, txim_copy_data_fun copy_data);
-void txim_raw_value_destory(struct txim_raw_value* val);
+txim_raw_value* txim_create_raw_value(txim_destory_data_fun destory_data, txim_copy_data_fun copy_data);
+void txim_destory_raw_value(struct txim_raw_value* val);
 
 typedef struct txim_atomic_callback txim_atomic_callback;
 struct txim_atomic_callback {
